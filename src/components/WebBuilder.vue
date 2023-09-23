@@ -7,7 +7,7 @@
 
 import grapes from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
-import Sample from './grapes-components/sample'
+import Sample from './grapes-components/Init'
 
 export default {
   name: 'Grapes',
@@ -34,7 +34,7 @@ export default {
     grapes.init({
       container: '#gjs',
       // storageManager: { type: 'none' },
-      plugins: ['components-vue-sample'],
+      plugins: ['components-vue-sample', 'components-button'],
       canvas: {
       },
     })

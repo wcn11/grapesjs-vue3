@@ -1,7 +1,17 @@
-import { nextTick, createApp } from 'vue'; 
-import CoreModel from '../CoreModel';
-import CoreView from '../CoreView';
-import Sample from './Sample';
+// grapes-sample-plugin.js
+import { createAndMountComponent } from './Bootstraper'; // Import the reusable function
+import CoreModel from './CoreModel';
+import CoreView from './CoreView';
+
+// Use Webpack's require.context to import all files inside the 'block' folder
+const blockContext = require.context('./blocks', true, /\.js$/);
+
+const blockComponents = {};
+blockContext.keys().forEach((blockPath) => {
+  const blockName = blockPath.match(/\.\/(.*?)\.js$/)[1];
+  const blockModule = blockContext(blockPath);
+  blockComponents[blockName] = blockModule.default || blockModule;
+});
 
 export default (editor) => {
   var comps = editor.DomComponents;
@@ -58,17 +68,14 @@ export default (editor) => {
         while (this.el.lastChild) this.el.removeChild(this.el.lastChild);
         this.el.appendChild(div);
 
-        nextTick(() => {
-          const sampleApp = createApp(Sample);
+        // Use the reusable function to create and mount the component
+        createAndMountComponent(blockComponents['Sample'], div);
 
-          sampleApp.mount(div);
+        this.updateAttributes();
+        this.updateClasses();
 
-          this.updateAttributes();
-          this.updateClasses();
-
-          var actCls = this.el.getAttribute('class') || '';
-          this.el.setAttribute('class', (actCls + ' ' + this.classEmpty).trim());
-        });
+        var actCls = this.el.getAttribute('class') || '';
+        this.el.setAttribute('class', (actCls + ' ' + this.classEmpty).trim());
       },
     }),
   };
