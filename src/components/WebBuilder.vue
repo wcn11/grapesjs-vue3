@@ -4,43 +4,56 @@
   </div>
 </template>
 <script>
-
-import grapes from 'grapesjs'
-import 'grapesjs/dist/css/grapes.min.css'
-import Sample from './grapes-components/Init'
+import grapes from "grapesjs";
+import "grapesjs/dist/css/grapes.min.css";
+import { initialize, blockComponents } from './grapes-components/Init';
+import { autoInit } from './grapes-components/core/AutoInit';
 
 export default {
-  name: 'Grapes',
+  name: "Grapes",
   props: {
-    msg: String
+    msg: String,
   },
 
-  mounted () {
+  mounted() {
+    let pluginsComponent = []
+    for (const componentName in blockComponents) {
+      if (blockComponents.hasOwnProperty(componentName)) {
+        const component = blockComponents[componentName];
+        // Do something with the component object, e.g., add it to GrapesJS
+        console.log(`Component Name: ${componentName}`);
+        console.log("Component Object:", component);
 
-    grapes.plugins.add('components-vue-sample', (editor, options) => {
-      var blockManager = editor.BlockManager
-      var comps = editor.DomComponents
-      var config = editor.getConfig();
-      config.forceClass = 0;
 
-      blockManager.add('sample', {
-        label: 'Sample',
-        content: '<sample />'
-      })
+        let pluginsName = `components-${componentName}`
+        pluginsComponent.push(pluginsName)
 
-      comps.addType("sample", Sample(editor))
-    })
+        grapes.plugins.add(pluginsName, (editor, options) => {
+          var blockManager = editor.BlockManager;
+          var comps = editor.DomComponents;
+          var config = editor.getConfig();
+          config.forceClass = 0;
+
+          blockManager.add(componentName.toLowerCase(), {
+            label: componentName,
+            content: `<${componentName.toLowerCase()} />`,
+          });
+
+          comps.addType(componentName.toLowerCase(), autoInit(editor,componentName));
+        });
+      }
+    }
+
+
 
     grapes.init({
-      container: '#gjs',
+      container: "#gjs",
       // storageManager: { type: 'none' },
-      plugins: ['components-vue-sample', 'components-button'],
-      canvas: {
-      },
-    })
-  }
-}
+      plugins: pluginsComponent,
+      canvas: {},
+    });
+  },
+};
 </script>
-
 
 <style></style>
